@@ -1,6 +1,7 @@
 git
 neovim
 ranger
+fnm
 fastfetch
 brightnessctl
 wl-clipboard
