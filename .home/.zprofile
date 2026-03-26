@@ -1,58 +1,54 @@
-export XDG_CACHE_HOME=${HOME}/.cache/
-export XDG_CONFIG_HOME=$HOME/.config/
-export XDG_CURRENT_DESKTOP=Unity
+# --- XDG Base Directories ---
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+# --- Desktop Environment ---
 export XDG_CURRENT_DESKTOP=river
-export XDG_DATA_HOME=${HOME}/.local/share
 export XDG_SESSION_DESKTOP=river
 export XDG_SESSION_TYPE=wayland
 
-export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
-export GTK_USE_PORTAL=0
-export GDK_BACKEND=wayland
-export LEIN_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/lein"
+# --- Toolkit Backends (Wayland First) ---
+export GDK_BACKEND=wayland,x11
+export QT_QPA_PLATFORM="wayland;xcb"
+export SDL_VIDEODRIVER=wayland       # Changed from x11 to wayland
+export CLUTTER_BACKEND=wayland
 export MOZ_ENABLE_WAYLAND=1
-export SDL_VIDEODRIVER=x11
-export QT_QPA_PLATFORM=wayland
+export ANKI_WAYLAND=1
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+# --- Theming & Scaling ---
 export QT_QPA_PLATFORMTHEME=qt5ct
 export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
-export _JAVA_AWT_WM_NONREPARENTING=1
-export GPG_TTY=$(tty)
-export GOPROXY=direct
-export LESSHISTFILE="-"
-export ANKI_WAYLAND=1
-export PATH="$PATH:`pwd`/flutter/bin"
-export CHROME_EXECUTABLE="/usr/bin/brave"
-
-export EDITOR=nvim
-export MANPAGER="bat --theme Nord -l man -p'"
-
 export GDK_DPI_SCALE=1.3
 export GDK_SCALE=1.3
 
-export RUSTC_WRAPPER=sccache
+# --- Preferences ---
+export EDITOR=nvim
+export MANPAGER="sh -c 'col -bx | bat -l man -p'" # Fixed the quoting error
+export GPG_TTY=$(tty)
+export CHROME_EXECUTABLE="/usr/bin/brave"
 
-export PNPM_HOME="$HOME/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+# --- Path Cleanup ---
+# Start with a clean base and add directories only if they exist
+path_add() {
+    [ -d "$1" ] && PATH="$1:$PATH"
+}
 
-# spotifatius config
-#export RSPOTIFY_CLIENT_SECRET=`cat $HOME/extras/misc/stuffz/sp_client_secret`
-#export RSPOTIFY_CLIENT_ID=`cat $HOME/extras/misc/stuffz/sp_client_id`
+path_add "$HOME/.local/bin"
+path_add "$HOME/.bin"
+path_add "$HOME/.cargo/bin"
+path_add "$HOME/go/bin"
+path_add "$HOME/.local/share/pnpm"
+path_add "$HOME/.spicetify"
+# path_add "$HOME/flutter/bin" # Be careful with `pwd` in profile; use absolute path
 
-[[ -d "$HOME/.bin" ]] && PATH="$HOME/.bin:$PATH"
-[[ -d "$HOME/.local/bin" ]] && PATH="$HOME/.local/bin:$PATH"
-[[ -d "/usr/local/share/go/bin" ]] && PATH="/usr/local/share/go/bin:$PATH"
-[[ -d "$HOME/go/bin" ]] && PATH="$HOME/go/bin:$PATH"
-[[ -d "$HOME/.cargo/bin" ]] && PATH="$HOME/.cargo/bin:$PATH"
-[[ -d "$HOME/.local/share/go/bin" ]] && PATH="$HOME/.local/share/go/bin:$PATH"
-[[ -d "$HOME/.config/yarn/global/node_modules/.bin" ]] && PATH="$HOME/.config/yarn/global/node_modules/.bin:$PATH"
-[[ -d "$HOME/.spicetify" ]] && PATH="$HOME/.spicetify:$PATH"
-[[ -d "$HOME/.yarn/bin" ]] && PATH="$HOME/.yarn/bin:$PATH"
-[[ -d "$HOME/.local/share/gem/ruby/3.0.0/bin" ]] && PATH="$HOME/.local/share/gem/ruby/3.0.0/bin:$PATH"
+export PATH
 
-
- if [[ -z $WAYLAND_DISPLAY && $(tty) = "/dev/tty1" ]]; then
-	exec dbus-run-session river -log-level debug > /tmp/river-${timestamp}.log 2>&1
+# --- Autostart River on TTY1 ---
+if [[ -z $WAYLAND_DISPLAY && $(tty) = "/dev/tty1" ]]; then
+    # Generate a simple timestamp for the log
+    timestamp=$(date +%F-%T)
+    exec dbus-run-session river -log-level debug > "/tmp/river-${timestamp}.log" 2>&1
 fi
