@@ -1,33 +1,20 @@
-dbus-update-activation-environment --all
-killall mako
-mako &
+#!/bin/sh
 
-killall waybar
-waybar &
+# Environment
+dbus-update-activation-environment --all &
 
-killall twenty
-twenty --init &
+# UI Components (Kill then start)
+pkill mako; mako &
+pkill waybar; waybar &
+pkill nm-applet; nm-applet --indicator &
+pkill wlsunset; wlsunset -T 4500 &
 
-killall polkit-gnome-authentication-agent-1
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+# Authentication
+pkill polkit-gnome; /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
-killall nm-applet
-nm-applet --indicator &
+# Wallpaper
+pkill swaybg; swaybg -i ~/.dotfiles/.assets/wallpapers/warrior_nord.jpg -m fill &
 
-killall wlsunset
-wlsunset -T 4500 &
+# Misc
 brightnessctl set 20%
-
-# River will send the process group of the init executable SIGTERM on exit.
-riverctl default-layout rivertile &
-exec rivertile -main-ratio 0.5 -view-padding 2 -outer-padding 2 &
-for pad in $(riverctl list-inputs | grep -i touchpad )
-do
-  riverctl input $pad events enabled
-  riverctl input $pad tap enabled
-done
-
-killall swaybg
-swaybg -i ~/.dotfiles/.assets/wallpapers/warrior_nord.jpg -m fill
-
-~/.config/scripts/updates.sh
+~/.config/scripts/updates.sh &
