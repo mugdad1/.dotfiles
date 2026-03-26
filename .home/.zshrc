@@ -1,61 +1,59 @@
-#eval "$(starship init zsh)"
+# --- Environment & Tools ---
 eval "$(fnm env --use-on-cd --shell zsh)"
-# The prompt
-export PROMPT="%F{red}%n%f:%F{cyan}%m%f"$'\n'"%F{cyan} %B%30<..<%~%b %F{red}❯❯ "
-# export PROMPT="%F{cyan} %B%30<..<%~%b %F{red}❯❯ "
-~/.config/scripts/colors/zwaves
+# eval "$(starship init zsh)" # Uncomment if you use starship later
 
+# --- History Settings ---
 HISTFILE=~/.zsh/.zsh-history
 HISTSIZE=1000000
 SAVEHIST=1000000
 setopt autocd
-# zstyle :compinstall filename '~/.zshrc'
+setopt HIST_IGNORE_ALL_DUPS  # Don't save duplicate commands
 
-#autoload -Uz compinit
-#zstyle ':completion:*' menu select
-#zmodload zsh/complist
-#compinit
-#_comp_options+=(globdots)
+# --- The Completion System (THE FIX) ---
+autoload -Uz compinit
+zmodload zsh/complist
+compinit
+_comp_options+=(globdots)
 
-# Edit line in vim with ctrl-e:
-autoload edit-command-line; zle -N edit-command-line
+# Make the tab menu navigable with arrow keys
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # Case insensitive completion
+
+# --- Prompt & Visuals ---
+export PROMPT="%F{red}%n%f:%F{cyan}%m%f"$'\n'"%F{cyan} %B%30<..<%~%b %F{red}❯❯ "
+[ -f ~/.config/scripts/colors/zwaves ] && ~/.config/scripts/colors/zwaves
+
+# --- Keybindings ---
+autoload -Uz edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
+bindkey '^[[C' forward-word       # Ctrl+Right arrow to accept one word of suggestion
+bindkey '^f' autosuggest-accept   # Ctrl+f to accept full suggestion
 
-# Aliases
+# --- Aliases ---
 alias zshrc='nvim ~/.zshrc'
 alias zpr='nvim ~/.zprofile'
-alias recordcam='ffmpeg -f v4l2 -framerate 60 -i /dev/video0 cam-out.mp4'
-alias takephoto='ffmpeg -f video4linux2 -i /dev/video0 -vframes 1  test.png'
-alias qsession='pkill -KILL -u $USER'
 alias q='exit'
+alias c='clear'
 alias cat='bat --theme Nord -p'
 alias l='eza -lahF --color=always --icons --sort=size --group-directories-first'
 alias ls='ls -lahF --color=always'
-alias c='clear'
 alias hst='history 1 -1 | cut -c 8- | sort | uniq | fzf | wl-copy'
 alias gst='git status'
 alias gm='git commit -S'
 alias ga='git add .'
-alias gma='git commit -aS'
 alias gp='git push'
 alias gpull='git pull'
-alias swhkdrc='nvim ~/.config/swhkd/swhkdrc'
-alias loadnvm='export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.config/nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
-alias pm="passmenu"
-alias py="python"
-alias py39="/usr/local/bin/python3.9"
 
-# Load on startup
+# --- Functions ---
 _startup() {
-  # Beam shape cursor
-  echo -ne '\e[5 q'
-  # Print an empty line on each new prompt
-  echo ""
+  echo -ne '\e[5 q' # Beam cursor
+  echo ""           # Extra newline for breathing room
 }
-
 precmd_functions+=(_startup)
 
-# Source plugins
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# --- Plugins (MUST BE AT THE END) ---
+# 1. Load Autosuggestions first
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# 2. Load Syntax Highlighting LAST
+source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
