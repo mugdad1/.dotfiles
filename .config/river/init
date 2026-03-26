@@ -1,48 +1,39 @@
 #!/bin/sh
 
-# --- 1. Environment & DBus ---
-# This must happen first so apps (Waybar, Mako) can talk to the system
+# --- 1. ENVIRONMENT & DBUS ---
 dbus-update-activation-environment --all &
 export XDG_CURRENT_DESKTOP=river
 
-# --- 2. Start the Modular "Brain" (The Lua Manager) ---
-# This looks for ~/.config/river/init.lua to handle your keybinds/tags
+# --- 2. THE MODULAR CORE (River 0.4.0 Way) ---
+# Start the Lua Manager (The Brain)
 riverctl spawn "river-luwm" &
 
-# --- 3. Layout Engine & Rules ---
-# Start the tiling engine
+# Start the Layout Engine
 riverctl spawn "rivertile -main-ratio 0.5 -view-padding 2 -outer-padding 2" &
-riverctl default-layout rivertile
+riverctl output-layout rivertile
 
-# Set Appearance
-riverctl border-color-focused 0x5e81ac
-riverctl border-color-unfocused 0x4c566a
-riverctl focus-follows-cursor normal
-
-# Rules (New 0.4.0 syntax)
-riverctl rule-add -app-id "float" float
-riverctl rule-add -title "popup title with spaces" float
-
-# --- 4. Input Configuration ---
-for pad in $(riverctl list-inputs | grep -i touchpad); do
-    riverctl input "$pad" events enabled
-    riverctl input "$pad" tap enabled
-done
-
-# --- 5. Background Apps (The old "process.sh" stuff) ---
-# We use pkill to ensure we don't start double instances on reload
+# --- 3. UI COMPONENTS (Formerly process.sh) ---
 pkill mako; mako &
 pkill waybar; waybar &
 pkill nm-applet; nm-applet --indicator &
 pkill wlsunset; wlsunset -T 4500 &
 pkill swaybg; swaybg -i ~/.dotfiles/.assets/wallpapers/warrior_nord.jpg -m fill &
 
-# Authentication Agent
+# Polkit & Specialized Scripts
 pkill polkit-gnome; /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+pkill twenty; twenty --init &
 
-# Misc Scripts & Hardware
+# --- 4. HARDWARE & MISC ---
 brightnessctl set 20%
-[ -f ~/.config/scripts/updates.sh ] && ~/.config/scripts/updates.sh &
-[ -f ~/.config/scripts/colors/zwaves ] && ~/.config/scripts/colors/zwaves &
+~/.config/scripts/updates.sh &
 
-echo "River 0.4.0 Unified Init Complete"
+# Touchpad Config
+for pad in $(riverctl list-inputs | grep -i touchpad); do
+    riverctl input "$pad" events enabled
+    riverctl input "$pad" tap enabled
+done
+
+# --- 5. COMPOSITOR STANDARDS ---
+riverctl border-color-focused 0x5e81ac
+riverctl border-color-unfocused 0x4c566a
+riverctl focus-follows-cursor normal
