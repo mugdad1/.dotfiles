@@ -14,13 +14,6 @@ do
 	paru -S --noconfirm --needed $pkg
 done
 
-# Install pkgs from the AUR
-echo -e "[${Cya}+${Whi}] Installing AUR packages"
-for aur_pkg in $(cat ~/.dotfiles/.assets/pkg_lists/aur_pkg_list)
-do
-	paru -S --noconfirm $aur_pkg
-done
-
 # Setup ZSH
 echo -e "[${Gre}*${Whi}] Setting up ZSH plugins"
 mkdir -p ~/.zsh
