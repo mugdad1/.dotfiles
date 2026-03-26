@@ -1,39 +1,11 @@
 #!/bin/sh
 
-# --- 1. ENVIRONMENT & DBUS ---
-dbus-update-activation-environment --all &
+# Clean up any lingering processes from previous sessions
+pkill river-luwm
+
+# Export critical Wayland environment variables
 export XDG_CURRENT_DESKTOP=river
+export XDG_SESSION_TYPE=wayland
 
-# --- 2. THE MODULAR CORE (River 0.4.0 Way) ---
-# Start the Lua Manager (The Brain)
-riverctl spawn "river-luwm" &
-
-# Start the Layout Engine
-riverctl spawn "rivertile -main-ratio 0.5 -view-padding 2 -outer-padding 2" &
-riverctl output-layout rivertile
-
-# --- 3. UI COMPONENTS (Formerly process.sh) ---
-pkill mako; mako &
-pkill waybar; waybar &
-pkill nm-applet; nm-applet --indicator &
-pkill wlsunset; wlsunset -T 4500 &
-pkill swaybg; swaybg -i ~/.dotfiles/.assets/wallpapers/warrior_nord.jpg -m fill &
-
-# Polkit & Specialized Scripts
-pkill polkit-gnome; /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-pkill twenty; twenty --init &
-
-# --- 4. HARDWARE & MISC ---
-brightnessctl set 20%
-~/.config/scripts/updates.sh &
-
-# Touchpad Config
-for pad in $(riverctl list-inputs | grep -i touchpad); do
-    riverctl input "$pad" events enabled
-    riverctl input "$pad" tap enabled
-done
-
-# --- 5. COMPOSITOR STANDARDS ---
-riverctl border-color-focused 0x5e81ac
-riverctl border-color-unfocused 0x4c566a
-riverctl focus-follows-cursor normal
+# Execute the Lua Manager (This replaces all riverctl calls)
+exec river-luwm
