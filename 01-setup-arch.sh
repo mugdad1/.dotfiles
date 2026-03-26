@@ -1,37 +1,55 @@
-Red='\e[0;31m';
-Gre='\e[0;32m';
-Cya='\e[0;36m';
-Whi='\e[0;37m';
+#!/bin/bash
 
-# Synchronize package databases
-echo -e "[${Red}*${Whi}] Updating system.."
-paru -Syu
+# --- Colors ---
+Red='\e[0;31m'; Gre='\e[0;32m'; Cya='\e[0;36m'; Whi='\e[0;37m'; End='\e[0m'
 
-# Install pkgs
-echo -e "[${Red}+${Whi}] Installing packages"
-for pkg in $(cat ~/.dotfiles/.assets/pkg_lists/pkg_list)
-do
-	paru -S --noconfirm --needed $pkg
-done
+echo -e "[${Cya}*${Whi}] Starting System Setup"
 
-# Setup ZSH
-echo -e "[${Gre}*${Whi}] Setting up ZSH plugins"
-mkdir -p ~/.zsh
-git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
+# 1. Update and Install All Packages
+# Using xargs to pass the whole list to paru at once for speed
+echo -e "[${Cya}*${Whi}] Syncing and installing packages from list..."
+PKG_LIST="$HOME/.dotfiles/.assets/pkg_lists/pkg_list"
 
-# Change shell for root
-echo -e "[${Red}*${Whi}] Changing shell for user"
-sudo chsh -s /usr/bin/zsh
+if [ -f "$PKG_LIST" ]; then
+    grep -v '^#' "$PKG_LIST" | xargs paru -S --noconfirm --needed
+else
+    echo -e "[${Red}!${Whi}] pkg_list not found at $PKG_LIST"
+    exit 1
+fi
 
-# Clone GTK theme(s) and icons
-echo -e "[${Gre}*${Whi}] Cloning GTK theme and icons"
-sudo git clone https://codeberg.org/tplasdio/numigsur-icon-theme.git /usr/share/icons/numigsur-icon-theme
-sudo git clone https://github.com/EliverLara/Nordic /usr/share/themes/Nordic
+# 2. Setup ZSH Plugins
+echo -e "[${Gre}*${Whi}] Setting up ZSH plugins..."
+ZSH_DIR="$HOME/.zsh"
+mkdir -p "$ZSH_DIR"
 
-# Change default commit message for git
-echo -e "[${Gre}*${Whi}] Cloning default commit message for git"
-git config --global commit.template ~/.gitmessage
+# Clone helper to prevent "already exists" errors
+sync_repo() {
+    if [ ! -d "$2" ]; then
+        echo -e "➞ Cloning $(basename "$2")..."
+        git clone --depth 1 "$1" "$2"
+    else
+        echo -e "➞ $(basename "$2") is already installed."
+    fi
+}
 
+sync_repo "https://github.com/zsh-users/zsh-autosuggestions" "$ZSH_DIR/zsh-autosuggestions"
+sync_repo "https://github.com/zsh-users/zsh-syntax-highlighting.git" "$ZSH_DIR/zsh-syntax-highlighting"
+
+# 3. Change Shell (Only if not already ZSH)
+if [ "$SHELL" != "/usr/bin/zsh" ]; then
+    echo -e "[${Cya}*${Whi}] Changing default shell to ZSH (may ask for password)"
+    chsh -s /usr/bin/zsh
+fi
+
+# 4. Git Global Config
+echo -e "[${Gre}*${Whi}] Setting up Git commit template"
+if [ -f "$HOME/.gitmessage" ]; then
+    git config --global commit.template "$HOME/.gitmessage"
+fi
+
+# 5. Transition to Config Script
+echo -e "[${Cya}*${Whi}] Running config symlinking script..."
 chmod +x ./02-configs.sh
 ./02-configs.sh
+
+echo -e "\n[${Gre}*${Whi}] 01-setup.sh finished successfully!${End}"
