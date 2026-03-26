@@ -1,7 +1,9 @@
 # --- River 0.4.0 Core & WM ---
 river
-river-classic
+river-luwm
 rivertile
+lua54
+luarocks
 wayland
 wayland-protocols
 wlroots
