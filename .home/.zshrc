@@ -43,7 +43,7 @@ alias gm='git commit -S'
 alias ga='git add .'
 alias gp='git push'
 alias gpull='git pull'
-
+alias s='nohup sh ~/.config/beansprout/autostart.sh &' 
 # --- Functions ---
 _startup() {
   echo -ne '\e[5 q' # Beam cursor

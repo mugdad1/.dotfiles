@@ -1,0 +1,58 @@
+// Layout & Behavior
+attach_mode top
+primary_count 1
+primary_ratio 0.50
+single_window_ratio 1
+primary_side left
+focus_follows_pointer #true
+pointer_warp_on_focus_change #true
+
+// Appearance
+wallpaper_image_path "~/.dotfiles/.assets/wallpapers/warrior_nord.jpg"
+
+borders {
+    width 2
+    color_focused "0x5e81ac"
+    color_unfocused "0x4c566a"
+}
+
+keybinds {
+    // Launchers
+    spawn Mod4 Return "foot"
+    spawn Mod4 C "rofi -show drun -show-icons"
+    spawn Mod4 Y "~/.config/river/scripts/yt"
+    spawn Mod4 W "woomer"
+    
+    // Discord with Wayland/GPU flags
+    spawn Mod4+Shift D "discord --ignore-gpu-blocklist --disable-features=UseOzonePlatform --enable-features=VaapiVideoDecoder --use-gl=desktop --enable-gpu-rasterization --enable-zero-copy"
+
+    // Window Management
+    close_window Mod4 Q
+    exit_river Mod4+Shift Q
+    toggle_float Mod4 F
+    toggle_fullscreen Mod4 M
+    spawn Mod4 B "killall -SIGUSR1 waybar"
+    
+    // Focus & Movement
+    focus_next_window Mod4 J
+    focus_prev_window Mod4 K
+    swap_next Mod4+Shift J
+    swap_prev Mod4+Shift K
+
+    // Layout (Direct Beansprout commands)
+    change_primary_ratio Mod4 H 0.05
+    change_primary_ratio Mod4 L -0.05
+
+    // System Control
+    spawn Mod4+Shift L "swaylock -i ~/.dotfiles/.assets/wallpapers/archlinux.png"
+    reload_config Mod4+Shift R
+
+    // Tags (Logic for 1-9 automated)
+    tag_bind Mod4 set_output_tags
+    tag_bind Mod4+Shift set_window_tags
+}
+
+pointer_binds {
+    move_window Mod4 BTN_LEFT
+    resize_window Mod4 BTN_RIGHT
+}

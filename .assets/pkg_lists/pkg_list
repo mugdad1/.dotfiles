@@ -8,7 +8,8 @@ wayland
 wayland-protocols
 wlroots
 libxkbcommon
-
+zig
+pixman
 # --- System & Drivers ---
 polkit-gnome
 brightnessctl

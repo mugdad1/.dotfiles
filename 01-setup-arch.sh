@@ -5,11 +5,10 @@ echo -e "[${Cya}*${Whi}] Installing River 0.4.1 + Beansprout..."
 PKG_LIST="$HOME/.dotfiles/.assets/pkg_lists/pkg_list"
 
 # Install your existing list
-grep -v '^#' "$PKG_LIST" | xargs paru -S --noconfirm --needed
+grep -v '^#' "$PKG_LIST" | xargs paru -Syu --noconfirm --needed
 
 # Build Beansprout from Source
 echo -e "[${Gre}*${Whi}] Building Beansprout WM..."
-sudo pacman -S --needed zig wayland-protocols wlroots libxkbcommon pixman
 
 if [ ! -d "/tmp/beansprout" ]; then
     git clone https://codeberg.org/beansprout/beansprout /tmp/beansprout

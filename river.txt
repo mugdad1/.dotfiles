@@ -1,0 +1,7 @@
+The init file /home/mugdad/.config/river/init contains the string "riverctl".
+This river version (0.4.1) does not support riverctl, you may
+wish to install river-classic instead.
+
+River 0.4.1 is a non-monolithic Wayland compositor and
+requires a compatible window manager to be useful.
+See https://isaacfreund.com/software/river for more information.
